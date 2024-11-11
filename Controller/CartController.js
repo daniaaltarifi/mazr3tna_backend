@@ -1,19 +1,19 @@
 const db = require("../config.js");
 // const addToCart=async(req,res)=>{
-//     const {user_id, productID, size, color, quantity, price, wrap_id, message, delivery_date }=req.body;
-//     const addToCartQuery=`INSERT INTO cart(user_id, productID, size, color, quantity, price, wrap_id, message, delivery_date) VALUES(?,?,?,?,?,?,?,?,?)`
-//     db.query(addToCartQuery,[user_id, productID, size, color, quantity, price, wrap_id, message, delivery_date],(err,result)=>{
+//     const {user_id, productID, size, weight, quantity, price, wrap_id, message, delivery_date }=req.body;
+//     const addToCartQuery=`INSERT INTO cart(user_id, productID, size, weight, quantity, price, wrap_id, message, delivery_date) VALUES(?,?,?,?,?,?,?,?,?)`
+//     db.query(addToCartQuery,[user_id, productID, size, weight, quantity, price, wrap_id, message, delivery_date],(err,result)=>{
 //         if(err) return res.status(500).json({error:err.message});
 //         res.json({message:"Product added to cart successfully"});
 //     });
  
 // }
 const addToCart = async (req, res) => {
-    const { user_id, productID, size, color, quantity, price, wrap_id, message, delivery_date } = req.body;
+    const { user_id, productID, size, weight, quantity, price, wrap_id, message, delivery_date } = req.body;
   
     // Use a single query for insert or update
     const addToCartQuery = `
-      INSERT INTO cart (user_id, productID, size, color, quantity, price, wrap_id, message, delivery_date) 
+      INSERT INTO cart (user_id, productID, size, weight, quantity, price, wrap_id, message, delivery_date) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE 
         quantity = quantity + VALUES(quantity), 
@@ -22,7 +22,7 @@ const addToCart = async (req, res) => {
   
     try {
       const results = await new Promise((resolve, reject) => {
-        db.query(addToCartQuery, [user_id, productID, size || null, color || null, quantity, price, wrap_id, message, delivery_date], (err, result) => {
+        db.query(addToCartQuery, [user_id, productID, size || null, weight || null, quantity, price, wrap_id, message, delivery_date], (err, result) => {
           if (err) return reject(err);
           resolve(result);
         });
@@ -41,7 +41,7 @@ const getCartByuserID = async (req, res) => {
     SELECT 
         c.id,
         c.size,
-        c.color,
+        c.weight,
         c.quantity,
         c.price,
         c.message,
@@ -58,7 +58,7 @@ const getCartByuserID = async (req, res) => {
     GROUP BY 
         c.id,       
         c.size,     
-        c.color,   
+        c.weight,   
         c.price,    
         product.name
     `;

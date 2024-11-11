@@ -12,8 +12,8 @@ const addBrand = async (req, res) => {
   });
 };
 
-const getAllBrands = async (req, res) => {
-  const getBrand = `SELECT * FROM brands `;
+const getAllCertificates = async (req, res) => {
+  const getBrand = `SELECT * FROM certificate`;
   db.query(getBrand, (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(result);
@@ -70,68 +70,55 @@ const getSeasons = (req, res) => {
 const getProductBySeasons = (req, res) => {
   const { season } = req.params;
   const getProduct = `
-        SELECT p.id, p.name, p.sale, p.instock, p.brandID, br.brand_name, MIN(pi.img) AS first_image,
-          COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
-      COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
+        SELECT p.id, p.name, p.sale, p.instock, MIN(pi.img) AS first_image, v.before_price, v.after_price
         FROM product p
          JOIN product_images pi ON p.id = pi.ProductID
-          JOIN brands br ON p.brandID = br.id
-           LEFT JOIN bags b ON p.id = b.ProductID
-    LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
-    LEFT JOIN fragrances f ON p.id = f.ProductID  
-    LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
-    LEFT JOIN watches w ON p.id = w.ProductID
+    LEFT JOIN variants v ON p.id = v.Product_ID
      WHERE p.season =? GROUP BY p.id`;
   db.query(getProduct, [season], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(result);
   });
 };
-const getAllProducts = (req, res) => {
-  const getAllProduct = `
-  SELECT 
-    p.id,
-    p.name, 
-    p.description,
-    p.sale, 
-    p.main_product_type,
-    p.product_type,
-    p.season,
-    p.instock,
-    p.brandID, 
-    br.brand_name,
-    p.updated_at,
-    MIN(pi.img) AS first_image,
-    COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
-    COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
-  FROM product p
-  JOIN product_images pi ON p.id = pi.ProductID
-  JOIN brands br ON p.brandID = br.id
-  LEFT JOIN bags b ON p.id = b.ProductID
-  LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
-  LEFT JOIN fragrances f ON p.id = f.ProductID  
-  LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
-  LEFT JOIN watches w ON p.id = w.ProductID
-  GROUP BY p.id
-`;
+// const getAllProducts = (req, res) => {
+//   const getAllProduct = `
+//   SELECT 
+//     p.id,
+//     p.name, 
+//     p.description,
+//     p.sale, 
+//     p.main_product_type,
+//     p.product_type,
+//     p.season,
+//     p.instock,
+//     p.brandID, 
+//     br.brand_name,
+//     p.updated_at,
+//     MIN(pi.img) AS first_image,
+//     COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
+//     COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
+//   FROM product p
+//   JOIN product_images pi ON p.id = pi.ProductID
+//   JOIN brands br ON p.brandID = br.id
+//   LEFT JOIN bags b ON p.id = b.ProductID
+//   LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
+//   LEFT JOIN fragrances f ON p.id = f.ProductID  
+//   LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
+//   LEFT JOIN watches w ON p.id = w.ProductID
+//   GROUP BY p.id
+// `;
 
-  db.query(getAllProduct, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(result);
-  });
-};
+//   db.query(getAllProduct, (err, result) => {
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.json(result);
+//   });
+// };
 const getLatestProduct = async (req, res) => {
   const getLatestProduct = `
-    SELECT p.id, p.name, p.sale, p.instock, MIN(pi.img) AS first_image,
-          COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
-      COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
+    SELECT p.id, p.name, p.sale, p.instock, MIN(pi.img) AS first_image,v.before_price, v.after_price
         FROM product p
          JOIN product_images pi ON p.id = pi.ProductID
-          LEFT JOIN bags b ON p.id = b.ProductID
-  LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
-  LEFT JOIN fragrances f ON p.id = f.ProductID  
-  LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
-  LEFT JOIN watches w ON p.id = w.ProductID
+  LEFT JOIN variants v ON p.id = v.Product_ID
   GROUP BY p.id
   ORDER BY p.updated_at DESC
     LIMIT 8;
@@ -197,7 +184,7 @@ const deleteBrand = async (req, res) => {
 };
 module.exports = {
   addBrand,
-  getAllBrands,
+  getAllCertificates,
   updateBrand,
   getBrandByid,
   deleteBrand,
@@ -209,6 +196,6 @@ module.exports = {
   getSeasons,
   getProductBySeasons,
   //GET ALL PRODUCT
-  getAllProducts,
+  // getAllProducts,
   getLatestProduct,
 };

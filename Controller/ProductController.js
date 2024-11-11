@@ -521,117 +521,6 @@ ON DUPLICATE KEY UPDATE
     );
   }
 };
-const getProductDetails = async (req, res) => {
-  const productId = req.params.id;
-  const productQuery = `
-    SELECT p.*, b.BagTypeID, w.WatchTypeID, f.FragranceTypeID, br.brand_name AS brand_name
-    FROM product p
-    LEFT JOIN bags b ON p.id = b.ProductID
-    LEFT JOIN watches w ON p.id = w.ProductID
-    LEFT JOIN fragrances f ON p.id = f.ProductID
-    LEFT JOIN brands br ON p.brandID = br.id
-    WHERE p.id = ?`;
-
-  try {
-    const [productResults] = await db
-      .promise()
-      .query(productQuery, [productId]);
-
-    if (productResults.length === 0) {
-      return res.status(404).json({ error: "Product not found." });
-    }
-
-    const product = productResults[0];
-
-    // Query to get product images
-    const imagesQuery = `SELECT img FROM product_images WHERE ProductID = ?`;
-    const [imageResults] = await db.promise().query(imagesQuery, [productId]);
-
-    // Query to get variants based on the product type
-    let variantsQuery = "";
-    if (product.main_product_type === "Bag") {
-      variantsQuery = `
-        SELECT Size, Color, Available, before_price, after_price 
-        FROM bagvariants 
-        WHERE BagID = (SELECT BagID FROM bags WHERE ProductID = ?)`;
-    } else if (product.main_product_type === "Watch") {
-      variantsQuery = `
-        SELECT Available, before_price, after_price 
-        FROM watches 
-        WHERE ProductID = ?`;
-    } else if (product.main_product_type === "Fragrance") {
-      variantsQuery = `
-        SELECT Size, Available, before_price, after_price 
-        FROM fragrancevariants 
-        WHERE FragranceID = (SELECT FragranceID FROM fragrances WHERE ProductID = ?)`;
-    }
-
-    // Execute the variants query if applicable
-    let variantResults = [];
-    if (variantsQuery) {
-      [variantResults] = await db.promise().query(variantsQuery, [productId]);
-    }
-
-    // Prepare the response object
-    const response = {
-      product,
-      images: imageResults.map((img) => img.img),
-      variants: [],
-    };
-
-    // Process variants based on product type
-    const sizeMap = {};
-    if (variantResults.length > 0) {
-      if (product.main_product_type === "Bag") {
-        variantResults.forEach(
-          ({ Color, Size, Available, before_price, after_price }) => {
-            if (Available === "Yes") {
-              if (!sizeMap[Size]) {
-                sizeMap[Size] = { size: Size, prices: [] };
-              }
-              sizeMap[Size].prices.push({
-                color: Color,
-                before_price,
-                after_price,
-              });
-            }
-          }
-        );
-      } else if (product.main_product_type === "Fragrance") {
-        variantResults.forEach(
-          ({ Size, Available, before_price, after_price }) => {
-            if (!sizeMap[Size]) {
-              sizeMap[Size] = { size: Size, prices: [] };
-            }
-            sizeMap[Size].prices.push({
-              before_price,
-              after_price,
-              available: Available === "Yes",
-            });
-          }
-        );
-      } else if (product.main_product_type === "Watch") {
-        variantResults.forEach(({ Available, before_price, after_price }) => {
-          if (Available === "Yes") {
-            response.variants.push({ before_price, after_price });
-          }
-        });
-        return res.status(200).json(response);
-      }
-    }
-
-    // Transform sizeMap into the desired response format
-    response.variants = Object.values(sizeMap).map(({ size, prices }) => ({
-      size,
-      prices,
-    }));
-
-    res.status(200).json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-};
 
 const getProducts = (req, res) => {
   const { main_product_type } = req.params;
@@ -1259,6 +1148,108 @@ const deleteProductImage = (req, res) => {
     res.status(200).json({ message: "Image deleted successfully." });
   });
 };
+
+
+
+
+const getProductDetails = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "Product ID is required." });
+  }
+
+  try {
+    // Query to get product details along with variants
+    const filterQuery = `
+      SELECT 
+        p.*, 
+        v.before_price, 
+        v.after_price, 
+        v.size, 
+        v.available, 
+        v.weight
+      FROM product p
+      LEFT JOIN variants v ON v.product_ID = p.id
+      WHERE p.id = ?
+    `; 
+
+    const [productResults] = await db.promise().query(filterQuery, [id]);
+
+   
+
+    if (productResults.length === 0) {
+      return res.status(404).json({ error: "Product not found." });
+    }
+
+    const product = productResults[0];  // Get the first product result
+
+    // Query to get product images
+    const imagesQuery = `SELECT img FROM product_images WHERE ProductID = ?`;
+    const [imageResults] = await db.promise().query(imagesQuery, [id]);
+
+   
+
+    // Prepare the response object
+    const response = {
+      product,
+      images: imageResults.map((img) => img.img),
+      variants: [],
+    };
+
+    // Process the variants
+    const variantList = [];
+
+    productResults.forEach(({ size, weight, available, before_price, after_price }) => {
+      console.log("Available:", available);  // Debugging: Log the available field value
+      if (available.toLowerCase() === "yes") {  // Check for "yes" case-insensitively
+        variantList.push({
+          size,
+          weight,
+          before_price,
+          after_price,
+          available,
+        });
+      }
+    });
+
+   
+
+    // Assign the list of variants to the response
+    response.variants = variantList;
+
+    // Return the response
+    return res.status(200).json(response);
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+
+const getAllProducts = (req, res) => {
+  const getAllProduct = `
+  SELECT 
+    p.id,
+    p.name, 
+    p.sale, 
+    p.instock,
+    MIN(pi.img) AS first_image,
+  v.before_price,
+  v.after_price
+  FROM product p
+  JOIN product_images pi ON p.id = pi.ProductID
+  LEFT JOIN variants v ON p.id = v.Product_ID
+  GROUP BY p.id
+`;
+
+  db.query(getAllProduct, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(result);
+  });
+};
+
+
 module.exports = {
   addProduct,
   getProductDetails,
@@ -1275,5 +1266,9 @@ module.exports = {
   getProductById,
   deleteFragranceVariantByFragranceID,
   deleteBagVariantByVariantID,
-  deleteProductImage
+  deleteProductImage,
+
+
+  getAllProducts
+
 };

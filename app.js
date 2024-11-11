@@ -48,6 +48,7 @@ const TypesProductRouter=require('./Router/TypesProductRouter.js')
 const ProductTypeIdRouter =require('./Router/ProductTypeIdRouter.js')
 const FragranceTypeIdRouter =require('./Router/FragranceTypeIdRouter.js')
 const BagTypeIdRouter =require('./Router/BagTypeIdRouter.js')
+const MainProductRouter =require('./Router/MainProductRouter.js')
 
 
 app.use('/product',ProductRouter)
@@ -66,6 +67,7 @@ app.use('/types',TypesProductRouter)
 app.use('/producttypeid',ProductTypeIdRouter)
 app.use('/fragrancetypeid',FragranceTypeIdRouter)
 app.use('/bagtypeid',BagTypeIdRouter)
+app.use('/mainproduct',MainProductRouter)
 
 
 
