@@ -23,18 +23,6 @@ const addMainProduct = async (req, res) => {
     res.json({ message: "Main product added successfully" });
   });
 };
-const updateMainProduct = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  if (!id || !name) {
-    return res.status(400).json({ error: "Id and name are required." });
-  }
-  const updateQuery = `UPDATE main_products SET name =? WHERE id =?`;
-  db.query(updateQuery, [name, id], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Main product updated successfully" });
-  });
-};
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
@@ -62,6 +50,7 @@ const filter_main_products = async (req, res) => {
         p.name AS name, 
         p.sale AS sale, 
         p.instock AS instock, 
+        p.sourcing AS sourcing,
         v.before_price, 
         v.after_price, 
         MIN(pi.img) AS first_image  
@@ -84,7 +73,6 @@ const filter_main_products = async (req, res) => {
 module.exports = {
   getmain_product,
   addMainProduct,
-  updateMainProduct,
   deleteProduct,
   filter_main_products,
 };

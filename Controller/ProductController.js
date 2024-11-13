@@ -11,7 +11,7 @@ const checkBrandIDExists = (brandID, callback) => {
 const addProduct = (req, res) => {
   const {
     name,
-    description,
+      ,
     sale,
     main_product_type,
     product_type,
@@ -37,14 +37,14 @@ const addProduct = (req, res) => {
     }
 
     const productQuery = `
-      INSERT INTO product (name, description, sale, main_product_type, product_type, season, brandID, instock)
+      INSERT INTO product (name,  , sale, main_product_type, product_type, season, brandID, instock)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(
       productQuery,
       [
         name,
-        description,
+          ,
         sale,
         main_product_type,
         product_type,
@@ -231,7 +231,7 @@ const updateProduct = (req, res) => {
   const { id } = req.params;
   const {
     name,
-    description,
+      ,
     sale,  
     main_product_type,
     product_type,
@@ -265,18 +265,18 @@ const updateProduct = (req, res) => {
     const saleValue = sale ? "Yes" : "No"; 
 
     const productQuery = `UPDATE product 
-      SET name = ?, description = ?, sale = ?, main_product_type = ?, product_type = ?, season = ?, brandID = ?, instock = ? 
+      SET name = ?,    = ?, sale = ?, main_product_type = ?, product_type = ?, season = ?, brandID = ?, instock = ? 
       WHERE id = ?`;
 
     db.query(productQuery, [
-      name, description, saleValue, main_product_type, product_type, season, brandID, instock === "Yes" ? "yes" : "no", id
+      name,   , saleValue, main_product_type, product_type, season, brandID, instock === "Yes" ? "yes" : "no", id
     ], (err) => {
       if (err) {
         console.error("Database update error:", err);
         return res.status(500).json({ error: err.message });
       }
 
-      console.log("Updated product:", { id, name, description, saleValue, main_product_type, product_type, season, brandID, instock });
+      console.log("Updated product:", { id, name,   , saleValue, main_product_type, product_type, season, brandID, instock });
 
       if (files && files.length > 0) {
         const insertImagesQuery = `INSERT INTO product_images (ProductID, img) VALUES ?`;
@@ -528,7 +528,7 @@ const getProducts = (req, res) => {
       SELECT 
           p.id, 
           p.name, 
-          p.description,
+          p.  ,
           p.main_product_type, 
           p.sale, 
           p.instock,
@@ -792,7 +792,7 @@ const getAllProductsWithVariantsCMS = async (req, res) => {
             instock: product.instock,
             sale: product.sale,
             updated_at: product.updatedDate,
-            description: product.description,
+              : product. ,
             FragranceID: product.FragranceID,
             BagID: product.BagID,
           },
@@ -1250,6 +1250,89 @@ const getAllProducts = (req, res) => {
 };
 
 
+
+const getAllPro = (req, res) => {
+  const getAllProQuery = `
+    SELECT 
+      p.id AS product_id,
+      p.name AS product_name,
+      p.ingredients,
+      p.sale,
+      p.main_product_type_id,
+      p.sourcing,
+      p.season,
+      p.certificateID,
+      c.certificate_name AS certificate_name,
+      ma.name AS main_product_type_name,
+      p.instock,
+      p.updated_at,
+      v.id AS variant_id,
+      v.size,
+      v.weight,
+      v.available,
+      v.before_price,
+      v.after_price,
+      MIN(pi.img) AS first_image
+    FROM product p
+    LEFT JOIN variants v ON v.product_ID = p.id
+    LEFT JOIN certificate c ON c.id = p.certificateID
+    LEFT JOIN main_products ma ON ma.id = p.main_product_type_id 
+    LEFT JOIN product_images pi ON p.id = pi.ProductID
+    GROUP BY p.id, v.id
+  `;
+  
+  db.query(getAllProQuery, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    // Group the result by product, attaching variants to each product
+    const products = result.reduce((acc, row) => {
+      let product = acc.find(p => p.id === row.product_id);
+      
+      if (!product) {
+        // Initialize the product object without variant data
+        product = {
+          id: row.product_id,
+          name: row.product_name,
+          ingredients: row.ingredients,
+          sale: row.sale,
+          main_product_type_id: row.main_product_type_id,
+          sourcing: row.sourcing,
+          season: row.season,
+          certificateID: row.certificateID,
+          certificate_name: row.certificate_name,
+          instock: row.instock,
+          main_product_type_name: row.main_product_type_name,
+          updated_at: row.updated_at,
+          variants: []  // Initialize empty array for variants
+        };
+        acc.push(product);
+      }
+
+      // Add variant details to the variants array if the variant exists
+      if (row.variant_id) {
+        const variant = {
+          variant_id: row.variant_id,
+          size: row.size,
+          weight: row.weight,
+          available: row.available,
+          before_price: row.before_price,
+          after_price: row.after_price,
+          first_image: row.first_image
+        };
+        product.variants.push(variant);
+      }
+
+      return acc;
+    }, []);
+
+    // Return the products along with their variants as a response
+    res.json(products);
+  });
+};
+
+
+
+
 module.exports = {
   addProduct,
   getProductDetails,
@@ -1267,8 +1350,13 @@ module.exports = {
   deleteFragranceVariantByFragranceID,
   deleteBagVariantByVariantID,
   deleteProductImage,
+  
 
 
+
+
+
+  getAllPro,
   getAllProducts
 
 };

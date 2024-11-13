@@ -11,8 +11,8 @@ const addOrder = async (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         const orderId = orderResult.insertId; // Get the newly created order ID
-        const orderItemsQuery = `INSERT INTO order_items (order_id, product_id, quantity, size, color, price, message, wrap_type, delivery_date) VALUES ?`;
-        const values = order_items.map(item => [orderId, item.product_id, item.quantity, item.size, item.color, item.price, item.message, item.wrap_type, item.delivery_date]);
+        const orderItemsQuery = `INSERT INTO order_items (order_id, product_id, quantity, size, price, weight) VALUES ?`;
+        const values = order_items.map(item => [orderId, item.product_id, item.quantity, item.size, item.price, item.weight]);
         db.query(orderItemsQuery, [values], (err) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
@@ -32,65 +32,7 @@ const addOrder = async (req, res) => {
 };
 
 
-//get order items by is or user id think about that
-// const addOrder = async (req, res) => {
-//     const { user_id, address_id, shipping_method, payment_method, total_price, order_items, discount_code } = req.body;
-//     // Input validation
-//     if (!user_id || !address_id || !shipping_method || !payment_method || !total_price || !order_items || order_items.length === 0) {
-//         return res.status(400).json({ error: "All fields are required." });
-//     }
-//     try {
-//         let discount = 0;
-//         // Validate discount code if provided
-//         if (discount_code) {
-//             const discountQuery = `
-//                 SELECT discount_percentage 
-//                 FROM discount_codes 
-//                 WHERE code = ? 
-//                 AND (expiration_date IS NULL OR expiration_date > NOW())
-//             `;
-//             const [rows] = await db.promise().query(discountQuery, [discount_code]);
 
-//             if (rows.length > 0) {
-//                 discount = rows[0].discount_percentage;
-//             } else {
-//                 return res.status(400).json({ error: "Invalid or expired discount code." });
-//             }
-//         }
-//         // Calculate final price after applying discount
-//         const discountAmount = (total_price * discount) / 100;
-//         const finalPrice = total_price - discountAmount;
-//         const orderStatus = payment_method === 'cliq' ? 'Pending' : 'Confirmed';
-//         // Insert the order
-//         const addOrderQuery = `
-//             INSERT INTO orders (user_id, address_id, shipping_method, payment_method, total_price, order_status) 
-//             VALUES (?, ?, ?, ?, ?, ?)
-//         `;
-//         const [orderResult] = await db.promise().query(addOrderQuery, [user_id, address_id, shipping_method, payment_method, finalPrice, orderStatus]);
-//         const orderId = orderResult.insertId; // Get the newly created order ID
-
-//         // Prepare order items for insertion
-//         const orderItemsQuery = `
-//             INSERT INTO order_items (order_id, product_id, quantity, size, color, price, message, wrap_type, delivery_date) 
-//             VALUES ?
-//         `;
-//         const values = order_items.map(item => [
-//             orderId, item.product_id, item.quantity, item.size, item.color, item.price, item.message, item.wrap_type, item.delivery_date
-//         ]);
-
-//         // Insert order items
-//         await db.promise().query(orderItemsQuery, [values]);
-
-//         // Delete the cart items for the user
-//         const delCartQuery = `DELETE FROM cart WHERE user_id = ?`;
-//         await db.promise().query(delCartQuery, [user_id]);
-
-//         // Send success response
-//         res.json({ message: "Order added successfully", orderId, finalPrice });
-//     } catch (err) {
-//         return res.status(500).json({ error: err.message });
-//     }
-// };
 
 const getorderByUserId = async (req, res) => {
     const { user_id } = req.params;
@@ -158,39 +100,6 @@ const getorderByUserId = async (req, res) => {
         res.json(orders);
     });
 }
-
-// Confirm Payment Function
-// const handleOrderStatusToConfirm = async (req, res) => {
-//     const { order_id, status } = req.body;
-
-//     if (!order_id || !status) {
-//         return res.status(400).json({ error: "Order ID and status are required" });
-//     }
-
-//     try {
-//         if (status === 'Confirmed') {
-//             const updateOrderStatusQuery = `UPDATE orders SET order_status = 'Confirmed' WHERE id = ?`;
-//             await db.promise().query(updateOrderStatusQuery, [order_id]);
-//             return res.json({ message: "Order confirmed successfully" });
-//         } else if (status === 'Rejected') {
-//             await db.promise().query('START TRANSACTION');
-
-//             const deleteOrderItemsQuery = `DELETE FROM order_items WHERE order_id = ?`;
-//             await db.promise().query(deleteOrderItemsQuery, [order_id]);
-
-//             const deleteOrderQuery = `DELETE FROM orders WHERE id = ?`;
-//             await db.promise().query(deleteOrderQuery, [order_id]);
-
-//             await db.promise().query('COMMIT');
-//             return res.json({ message: "Order rejected and removed successfully" });
-//         } else {
-//             return res.status(400).json({ error: "Invalid status. Use 'Confirmed' or 'Rejected'." });
-//         }
-//     } catch (err) {
-//         await db.promise().query('ROLLBACK');  // Rollback transaction in case of error
-//         return res.status(500).json({ error: err.message });
-//     }
-// };
 const handleOrderStatusToConfirm = async (req, res) => {
     const { order_id, status } = req.body;
 
@@ -233,11 +142,8 @@ const getOrders = async (req, res) => {
             oi.product_id,
             oi.quantity,
             oi.size,
-            oi.color,
             oi.price,
-            oi.message,
-            oi.wrap_type,
-            oi.delivery_date,
+            oi.weight,
             p.name AS product_name,
             a.address AS address,
             a.addressoptional AS addressoptional,
@@ -290,11 +196,8 @@ const getOrders = async (req, res) => {
                         product_id: row.product_id,
                         quantity: row.quantity,
                         size: row.size,
-                        color: row.color,
                         price: row.price,
-                        message: row.message,
-                        wrap_type: row.wrap_type,
-                        delivery_date: row.delivery_date,
+                        weight: row.weight,
                         product_name: row.product_name
                     });
                 }

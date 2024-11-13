@@ -1,14 +1,14 @@
 const db = require("../config.js");
-const addBrand = async (req, res) => {
-  const { brand_name } = req.body;
-  const brand_img =
-    req.files && req.files["brand_img"]
-      ? req.files["brand_img"][0].filename
+const addCertificate = async (req, res) => {
+  const { certificate_name } = req.body;
+  const certificate_img =
+    req.files && req.files["certificate_img"]
+      ? req.files["certificate_img"][0].filename
       : null;
-  const addBrandQuery = `INSERT INTO brands(brand_name, brand_img) VALUES(?, ?)`;
-  db.query(addBrandQuery, [brand_name, brand_img], (err, result) => {
+  const addCertificateQuery = `INSERT INTO certificate(certificate_name, certificate_img) VALUES(?, ?)`;
+  db.query(addCertificateQuery, [certificate_name, certificate_img], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Brand added successfully" });
+    res.json({ message: "certificate added successfully" });
   });
 };
 
@@ -20,46 +20,16 @@ const getAllCertificates = async (req, res) => {
   });
 };
 
-const getProductBasedOnBrands = async (req, res) => {
-  const { brand } = req.params;
-  const getProduct = `
-    SELECT p.id, p.name, p.sale, 
-           GROUP_CONCAT(pi.img) AS images, 
-           br.brand_name AS brand_name,
-           br.brand_img AS brand_img,
-             COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
-      COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
-    FROM product p 
-    LEFT JOIN product_images pi ON p.id = pi.ProductID 
-    LEFT JOIN brands br ON p.brandID = br.id
-     LEFT JOIN bags b ON p.id = b.ProductID
-    LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
-    LEFT JOIN fragrances f ON p.id = f.ProductID  
-    LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
-    LEFT JOIN watches w ON p.id = w.ProductID
-    WHERE br.brand_name = ?
-    GROUP BY p.id`;
 
-  db.query(getProduct, [brand], (err, result) => {
+const getCertificateById = async (req, res) => {
+  const { id } = req.params;
+  const getCertificate = `SELECT * FROM certificate WHERE id =?`;
+  db.query(getCertificate, [id], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(result);
+    res.json(result[0]);
   });
-};
+}
 
-const sizesBags = (req, res) => {
-  const sizesBags = "SELECT DISTINCT size FROM bagvariants";
-  db.query(sizesBags, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(result);
-  });
-};
-const sizesFragrance = (req, res) => {
-  const sizesFragrance = "SELECT DISTINCT size FROM fragrancevariants";
-  db.query(sizesFragrance, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(result);
-  });
-};
 const getSeasons = (req, res) => {
   const seasons = "SELECT DISTINCT season FROM product";
   db.query(seasons, (err, result) => {
@@ -80,39 +50,7 @@ const getProductBySeasons = (req, res) => {
     res.json(result);
   });
 };
-// const getAllProducts = (req, res) => {
-//   const getAllProduct = `
-//   SELECT 
-//     p.id,
-//     p.name, 
-//     p.description,
-//     p.sale, 
-//     p.main_product_type,
-//     p.product_type,
-//     p.season,
-//     p.instock,
-//     p.brandID, 
-//     br.brand_name,
-//     p.updated_at,
-//     MIN(pi.img) AS first_image,
-//     COALESCE(MIN(bv.after_price), MIN(fv.after_price), MIN(w.after_price)) AS after_price,
-//     COALESCE(MIN(bv.before_price), MIN(fv.before_price), MIN(w.before_price)) AS before_price
-//   FROM product p
-//   JOIN product_images pi ON p.id = pi.ProductID
-//   JOIN brands br ON p.brandID = br.id
-//   LEFT JOIN bags b ON p.id = b.ProductID
-//   LEFT JOIN bagvariants bv ON b.BagID = bv.BagID
-//   LEFT JOIN fragrances f ON p.id = f.ProductID  
-//   LEFT JOIN fragrancevariants fv ON f.FragranceID = fv.FragranceID
-//   LEFT JOIN watches w ON p.id = w.ProductID
-//   GROUP BY p.id
-// `;
 
-//   db.query(getAllProduct, (err, result) => {
-//     if (err) return res.status(500).json({ error: err.message });
-//     res.json(result);
-//   });
-// };
 const getLatestProduct = async (req, res) => {
   const getLatestProduct = `
     SELECT p.id, p.name, p.sale, p.instock, MIN(pi.img) AS first_image,v.before_price, v.after_price
@@ -128,15 +66,15 @@ const getLatestProduct = async (req, res) => {
     res.json(result);
   });
 };
-const updateBrand = async (req, res) => {
+const updateCertificate = async (req, res) => {
   const { id } = req.params;
-  const { brand_name } = req.body;
-  const brand_img =
-    req.files && req.files["brand_img"]
-      ? req.files["brand_img"][0].filename
+  const { certificate_name } = req.body;
+  const certificate_img =
+    req.files && req.files["certificate_img"]
+      ? req.files["certificate_img"][0].filename
       : null;
 
-  const sqlSelect = "SELECT brand_name, brand_img FROM brands WHERE id = ?";
+  const sqlSelect = "SELECT certificate_name, certificate_img FROM certificate WHERE id = ?";
 
   db.query(sqlSelect, [id], (err, results) => {
     if (err) {
@@ -150,48 +88,37 @@ const updateBrand = async (req, res) => {
         .json({ message: "No matching record found to update" });
     }
     const existing = results[0];
-    const updatedbrand_name =
-      brand_name !== undefined ? brand_name : existing.brand_name;
+    const updatedcertificate_name =
+      certificate_name !== undefined ? certificate_name : existing.certificate_name;
 
-    const updatedbrand_Img =
-      brand_img !== null ? brand_img : existing.brand_img;
-    const updateBrandQuery = `UPDATE brands SET brand_name =?, brand_img =? WHERE id =?`;
+    const updatedcertificate_Img =
+    certificate_img !== null ? certificate_img : existing.certificate_img;
+    const updateBrandQuery = `UPDATE certificate SET certificate_name =?, certificate_img =? WHERE id =?`;
     db.query(
       updateBrandQuery,
-      [updatedbrand_name, updatedbrand_Img, id],
+      [updatedcertificate_name, updatedcertificate_Img, id],
       (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Brand updated successfully" });
+        res.json({ message: "certificate updated successfully" });
       }
     );
   });
 };
-const getBrandByid = async (req, res) => {
+
+const deleteCertificate = async (req, res) => {
   const { id } = req.params;
-  const getBrandQuery = `SELECT * FROM brands WHERE id =?`;
-  db.query(getBrandQuery, [id], (err, result) => {
+  const deleteCertificateQuery = `DELETE FROM certificate WHERE id =?`;
+  db.query(deleteCertificateQuery, [id], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(result[0]);
-  });
-};
-const deleteBrand = async (req, res) => {
-  const { id } = req.params;
-  const deleteBrandQuery = `DELETE FROM brands WHERE id =?`;
-  db.query(deleteBrandQuery, [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Brand deleted successfully" });
+    res.json({ message: "certificate deleted successfully" });
   });
 };
 module.exports = {
-  addBrand,
+  addCertificate,
   getAllCertificates,
-  updateBrand,
-  getBrandByid,
-  deleteBrand,
-  getProductBasedOnBrands,
-  // GET SIZES
-  sizesBags,
-  sizesFragrance,
+  updateCertificate,
+  deleteCertificate,
+  getCertificateById,
   // GET SEASONS
   getSeasons,
   getProductBySeasons,

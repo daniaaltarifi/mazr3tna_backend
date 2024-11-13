@@ -37,7 +37,6 @@ const ProductRouter=require('./Router/ProductRouter.js')
 const LoginRouter=require('./Router/LoginRouter.js')
 const UserAddressRouter=require('./Router/UserAddressRouter.js')
 const CartRouter=require('./Router/CartRouter.js')
-const WrapGiftRouter=require('./Router/WrapGiftRouter.js')
 const ResetPasswordRouter=require('./Router/ResetPasswordRouter.js')
 const OrdersRouter=require('./Router/OrdersRouter.js')
 const SliderRouter=require('./Router/SliderRouter.js')
@@ -49,14 +48,13 @@ const ProductTypeIdRouter =require('./Router/ProductTypeIdRouter.js')
 const FragranceTypeIdRouter =require('./Router/FragranceTypeIdRouter.js')
 const BagTypeIdRouter =require('./Router/BagTypeIdRouter.js')
 const MainProductRouter =require('./Router/MainProductRouter.js')
-
+const CertificateRouter =require('./Router/CertificateRouter.js')
 
 app.use('/product',ProductRouter)
 // app.use('/giftcard',GiftCardRouter)
 app.use('/auth',LoginRouter)
 app.use('/address',UserAddressRouter)
 app.use('/cart',CartRouter)
-app.use('/wrapgift',WrapGiftRouter)
 app.use('/changepassword',ResetPasswordRouter)
 app.use('/orders',OrdersRouter)
 app.use('/slider',SliderRouter)
@@ -68,7 +66,7 @@ app.use('/producttypeid',ProductTypeIdRouter)
 app.use('/fragrancetypeid',FragranceTypeIdRouter)
 app.use('/bagtypeid',BagTypeIdRouter)
 app.use('/mainproduct',MainProductRouter)
-
+app.use('/certificate',CertificateRouter)
 
 
 

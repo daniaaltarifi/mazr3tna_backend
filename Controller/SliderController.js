@@ -11,7 +11,7 @@ const addslider=async(req,res)=>{
  
 }
 const getslider = async (req, res) => {
-    const getsliderQuery = `SELECT * FROM slider`;
+    const getsliderQuery = `SELECT s.*, ma.name AS name FROM slider s LEFT JOIN main_products ma ON s.link_to = ma.id`;
     db.query(getsliderQuery, (err, result) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(result);
@@ -62,13 +62,24 @@ const getslider = async (req, res) => {
       res.json({ message: "Slider deleted successfully" });
     });
   };
-  const getSliderById = async (req, res) => {
-    const { id } = req.params;
-    const getSliderQuery = `SELECT * FROM slider WHERE id=?`;
-    db.query(getSliderQuery, [id], (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(result);
-    });
+const getSliderById = async (req, res) => {
+  const { id } = req.params;
 
-  }
+  // Corrected query syntax
+  const getSliderQuery = `
+    SELECT s.*, 
+           ma.name AS name
+    FROM slider s
+    LEFT JOIN main_products ma ON s.link_to = ma.id
+    WHERE s.id = ?`;
+
+  db.query(getSliderQuery, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    // Send the result as JSON response
+    res.json(result);
+  });
+}
+
 module.exports={addslider,getslider,updateslider,deleteslider,getSliderById}
