@@ -4,6 +4,7 @@ const ProductController = require("../Controller/ProductController.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
 // Configure multer storage
 const customStorage = multer.diskStorage({
@@ -11,39 +12,35 @@ const customStorage = multer.diskStorage({
     cb(null, "images"); // Destination folder
   },
   filename: (req, file, cb) => {
-    // Generate the filename
-    const filename = file.originalname;
-    const filePath = path.join("images", filename);
+    const ext = path.extname(file.originalname);
+    const baseName = path.basename(file.originalname, ext);
+    const filePath = path.join("images", file.originalname);
 
-    // Check if the file already exists
+    // Check if file already exists with the same name
     if (fs.existsSync(filePath)) {
-      // If file exists, append a timestamp to the filename
-      const timestamp = Date.now();
-      const ext = path.extname(filename);
-      const baseName = path.basename(filename, ext);
-      cb(null, `${baseName}-${timestamp}${ext}`);
+      // If the file exists, don't upload again
+      cb(null, file.originalname);  // Same filename will not be added again
     } else {
-      // If file doesn't exist, save it with the given filename
-      cb(null, filename);
+      // If file doesn't exist, proceed with saving the file
+      cb(null, file.originalname);
     }
   },
 });
 
 // Middleware to handle file upload
 const upload = multer({
-   storage: customStorage,
+  storage: customStorage,
   fileFilter: (req, file, cb) => {
     // Optionally, you can filter file types if needed
     cb(null, true);
   },
 });
-
 // Product routes
-// router.post("/add", upload.array("img", 5), ProductController.addProduct);
+router.post("/add", upload.array("img", 5), ProductController.addProduct);
 // router.get("/:id", ProductController.getProductDetails);
 // router.get("/bymaintype/:main_product_type", ProductController.getProducts);
 // router.get("/bysubtype/:subtype", ProductController.getProductBysubType);
-// router.delete("/delete/:id", ProductController.deleteProduct);
+router.delete("/delete/:id", ProductController.deleteProduct);
 // router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
 
 // // Brand routes
