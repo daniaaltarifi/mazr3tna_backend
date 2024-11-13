@@ -41,7 +41,7 @@ router.post("/add", upload.array("img", 5), ProductController.addProduct);
 // router.get("/bymaintype/:main_product_type", ProductController.getProducts);
 // router.get("/bysubtype/:subtype", ProductController.getProductBysubType);
 router.delete("/delete/:id", ProductController.deleteProduct);
-// router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
+router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
 
 // // Brand routes
 // router.post("/addbrand", upload.fields([{ name: "brand_img", maxCount: 1 }]), BrandController.addBrand);
@@ -70,11 +70,12 @@ router.delete("/delete/:id", ProductController.deleteProduct);
 // router.delete("/deleteProductImageById/:id", ProductController.deleteProductImage)
 
 router.get("/getbyid/:id",ProductController.getProductDetails)
+router.get("/getbyidcms/:id",ProductController.getProductByIdCms)
 router.get("/get/allproducts", ProductController.getAllProducts);
 router.get("/get/getAllPro", ProductController.getAllPro);
 
 
-
+router.delete("/deleteimage/:id", ProductController.deleteProductImage)
 
 
 module.exports = router;
