@@ -44,7 +44,7 @@ const upload = multer({
 // router.get("/bymaintype/:main_product_type", ProductController.getProducts);
 // router.get("/bysubtype/:subtype", ProductController.getProductBysubType);
 // router.delete("/delete/:id", ProductController.deleteProduct);
-// router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
+router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
 
 // // Brand routes
 // router.post("/addbrand", upload.fields([{ name: "brand_img", maxCount: 1 }]), BrandController.addBrand);
