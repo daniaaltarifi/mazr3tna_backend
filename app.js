@@ -50,8 +50,8 @@ const BagTypeIdRouter =require('./Router/BagTypeIdRouter.js')
 const MainProductRouter =require('./Router/MainProductRouter.js')
 const CertificateRouter =require('./Router/CertificateRouter.js')
 const AboutRouter =require('./Router/AboutPostRouter.js')
-
-
+const PrivacyPolicyRouter =require('./Router/PrivacyPolicyRouter.js')
+const TermsConditionsRouter = require('./Router/TermsConditionsRouter.js')
 
 
 app.use('/product',ProductRouter)
@@ -72,6 +72,8 @@ app.use('/bagtypeid',BagTypeIdRouter)
 app.use('/mainproduct',MainProductRouter)
 app.use('/certificate',CertificateRouter)
 app.use('/about',AboutRouter)
+app.use('/privacypolicy',PrivacyPolicyRouter)
+app.use('/TermsConditionsRouter',TermsConditionsRouter)
 
 
 app.get("/", (req, res) => {
