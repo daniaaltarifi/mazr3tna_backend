@@ -9,4 +9,5 @@ router.get("/getmainproduct",MainProductController.getmain_product)
 router.post("/add",MainProductController.addMainProduct)
 router.delete("/delete/:id",MainProductController.deleteProduct)
 router.get("/main_product_filter/:main_product_type_id",MainProductController.filter_main_products)
+
 module.exports =router

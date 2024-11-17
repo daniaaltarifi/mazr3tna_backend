@@ -49,8 +49,11 @@ const BlogsRouter =require('./Router/BlogsRouter.js')
 const AboutRouter =require('./Router/AboutPostRouter.js')
 const FooterRouter =require('./Router/FooterRouter.js')
 const SocialRouter =require('./Router/SocialRouter.js')
+const HeaderRouter =require('./Router/HeaderRouter.js')
 
 
+const PrivacyPolicyRouter =require('./Router/PrivacyPolicyRouter.js')
+const TermsConditionsRouter = require('./Router/TermsConditionsRouter.js')
 
 
 app.use('/product',ProductRouter)
@@ -69,8 +72,11 @@ app.use('/certificate',CertificateRouter)
 app.use('/blogs',BlogsRouter)
 app.use('/footer',FooterRouter)
 app.use('/social',SocialRouter)
+app.use('/header',HeaderRouter)
 
 app.use('/about',AboutRouter)
+app.use('/privacypolicy',PrivacyPolicyRouter)
+app.use('/TermsConditionsRouter',TermsConditionsRouter)
 
 
 app.get("/", (req, res) => {
