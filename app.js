@@ -71,7 +71,7 @@ app.use('/certificate',CertificateRouter)
 
 
 app.get("/", (req, res) => {
-    res.send("Welcome to Mazr3tna! ");
+    res.send("Welcome to Hadiyyeh! ");
   });
   app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);

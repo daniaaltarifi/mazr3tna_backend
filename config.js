@@ -8,6 +8,7 @@ const db = mysql2.createPool({
     password: process.env.DB_PASS,
     database: process.env.DB_NAME
 });
+console.log("db created",process.env.DB_NAME)
   // Optionally, you can test the pool by connecting and querying the database
   db.getConnection((err, connection) => {
     if (err) {
