@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ProductController = require("../Controller/ProductController.js");
+const BlogsController = require("../Controller/BlogsController.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -34,19 +34,13 @@ const upload = multer({
     cb(null, true);
   },
 });
-// Product routes
-router.post("/add", upload.array("img", 5), ProductController.addProduct);
-router.delete("/delete/:id", ProductController.deleteProduct);
-router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
-router.get("/getbyid/:id",ProductController.getProductDetails)
-router.get("/getbyidcms/:id",ProductController.getProductByIdCms)
-router.get("/get/allproducts", ProductController.getAllProducts);
-router.get("/get/getAllPro", ProductController.getAllPro);
+ router.get("/get/blogs", BlogsController.getAllblogs);
+router.post('/addblog',upload.fields([{ name: "img", maxCount: 1 }]),BlogsController.addblogs)
+router.put("/updateblog/:id", upload.fields([{ name: "img", maxCount: 1 }]), BlogsController.updateblogs);
+
+router.delete("/delete/blog/:id", BlogsController.deleteblogs);
+router.get("/getblogbyid/:id",BlogsController.getblogsById)
+ module.exports = router;
 
 
-router.delete("/deleteimage/:id", ProductController.deleteProductImage)
-router.put("/updatevariants/:id", ProductController.updateVariants);
-router.get("/getvariantsbyid/:id", ProductController.getVariantBuId)
 
-
-module.exports = router;
