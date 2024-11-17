@@ -49,6 +49,10 @@ const FragranceTypeIdRouter =require('./Router/FragranceTypeIdRouter.js')
 const BagTypeIdRouter =require('./Router/BagTypeIdRouter.js')
 const MainProductRouter =require('./Router/MainProductRouter.js')
 const CertificateRouter =require('./Router/CertificateRouter.js')
+const AboutRouter =require('./Router/AboutPostRouter.js')
+
+
+
 
 app.use('/product',ProductRouter)
 // app.use('/giftcard',GiftCardRouter)
@@ -67,7 +71,7 @@ app.use('/fragrancetypeid',FragranceTypeIdRouter)
 app.use('/bagtypeid',BagTypeIdRouter)
 app.use('/mainproduct',MainProductRouter)
 app.use('/certificate',CertificateRouter)
-
+app.use('/about',AboutRouter)
 
 
 app.get("/", (req, res) => {

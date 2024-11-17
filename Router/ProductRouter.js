@@ -34,6 +34,8 @@ const upload = multer({
     cb(null, true);
   },
 });
+
+
 // Product routes
 router.post("/add", upload.array("img", 5), ProductController.addProduct);
 router.delete("/delete/:id", ProductController.deleteProduct);
