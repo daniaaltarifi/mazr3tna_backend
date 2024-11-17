@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ProductController = require("../Controller/ProductController.js");
+const FooterController = require("../Controller/FooterController.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -34,21 +34,10 @@ const upload = multer({
     cb(null, true);
   },
 });
+ router.get("/get/footer", FooterController.getfooter);
+router.put("/updatefooter/:id", upload.fields([{ name: "logo", maxCount: 1 }]), FooterController.updatefooter);
+router.get("/getfooterbyid/:id",FooterController.getfooterById)
+ module.exports = router;
 
 
-// Product routes
-router.post("/add", upload.array("img", 5), ProductController.addProduct);
-router.delete("/delete/:id", ProductController.deleteProduct);
-router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
-router.get("/getbyid/:id",ProductController.getProductDetails)
-router.get("/getbyidcms/:id",ProductController.getProductByIdCms)
-router.get("/get/allproducts", ProductController.getAllProducts);
-router.get("/get/getAllPro", ProductController.getAllPro);
 
-
-router.delete("/deleteimage/:id", ProductController.deleteProductImage)
-router.put("/updatevariants/:id", ProductController.updateVariants);
-router.get("/getvariantsbyid/:id", ProductController.getVariantBuId)
-
-
-module.exports = router;

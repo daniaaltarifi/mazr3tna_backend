@@ -46,6 +46,12 @@ const DiscountCodeRouter=require('./Router/DiscountCodeRouter.js')
 const MainProductRouter =require('./Router/MainProductRouter.js')
 const CertificateRouter =require('./Router/CertificateRouter.js')
 const BlogsRouter =require('./Router/BlogsRouter.js')
+const AboutRouter =require('./Router/AboutPostRouter.js')
+const FooterRouter =require('./Router/FooterRouter.js')
+const SocialRouter =require('./Router/SocialRouter.js')
+
+
+
 
 app.use('/product',ProductRouter)
 // app.use('/giftcard',GiftCardRouter)
@@ -61,11 +67,14 @@ app.use('/discountcode',DiscountCodeRouter)
 app.use('/mainproduct',MainProductRouter)
 app.use('/certificate',CertificateRouter)
 app.use('/blogs',BlogsRouter)
+app.use('/footer',FooterRouter)
+app.use('/social',SocialRouter)
 
+app.use('/about',AboutRouter)
 
 
 app.get("/", (req, res) => {
-    res.send("Welcome to Hadiyyeh! ");
+    res.send("Welcome to Mazr3tna! ");
   });
   app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);

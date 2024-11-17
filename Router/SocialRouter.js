@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ProductController = require("../Controller/ProductController.js");
+const SocialController = require("../Controller/SocialController.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -34,21 +34,13 @@ const upload = multer({
     cb(null, true);
   },
 });
+ router.get("/get/social", SocialController.getAllsocial);
+router.post('/addsocial',upload.fields([{ name: "icon", maxCount: 1 }]),SocialController.addsocial)
+router.put("/updatesocial/:id", upload.fields([{ name: "icon", maxCount: 1 }]), SocialController.updatesocial);
+
+router.delete("/delete/social/:id", SocialController.deletesocial);
+router.get("/getsocialbyid/:id",SocialController.getsocialById)
+ module.exports = router;
 
 
-// Product routes
-router.post("/add", upload.array("img", 5), ProductController.addProduct);
-router.delete("/delete/:id", ProductController.deleteProduct);
-router.put("/update/:id", upload.array("img", 5), ProductController.updateProduct);
-router.get("/getbyid/:id",ProductController.getProductDetails)
-router.get("/getbyidcms/:id",ProductController.getProductByIdCms)
-router.get("/get/allproducts", ProductController.getAllProducts);
-router.get("/get/getAllPro", ProductController.getAllPro);
 
-
-router.delete("/deleteimage/:id", ProductController.deleteProductImage)
-router.put("/updatevariants/:id", ProductController.updateVariants);
-router.get("/getvariantsbyid/:id", ProductController.getVariantBuId)
-
-
-module.exports = router;
