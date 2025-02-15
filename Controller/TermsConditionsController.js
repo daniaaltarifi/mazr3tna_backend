@@ -1,6 +1,5 @@
 const db = require("../config.js");
 
-// إضافة شروط الاستخدام (Terms and Conditions)
 const addTermsAndConditions = async (req, res) => {
     const { title, description } = req.body;
     if (!title || !description) {
@@ -13,7 +12,7 @@ const addTermsAndConditions = async (req, res) => {
     });
 };
 
-// الحصول على جميع شروط الاستخدام
+
 const getTermsAndConditions = async (req, res) => {
     const getTermsAndConditionsQuery = `SELECT * FROM termsandconditions`;
     db.query(getTermsAndConditionsQuery, (err, result) => {
@@ -22,7 +21,7 @@ const getTermsAndConditions = async (req, res) => {
     });
 };
 
-// الحصول على شروط الاستخدام بواسطة الـ ID
+
 const getTermsAndConditionsById = async (req, res) => {
     const { id } = req.params;
     const getTermsAndConditionsQuery = `SELECT * FROM termsandconditions WHERE id =?`;
@@ -32,7 +31,7 @@ const getTermsAndConditionsById = async (req, res) => {
     });
 };
 
-// تحديث شروط الاستخدام
+
 const updateTermsAndConditions = async (req, res) => {
     const { id } = req.params;       
     const { title, description } = req.body; 
@@ -50,7 +49,7 @@ const updateTermsAndConditions = async (req, res) => {
     });
 };
 
-// حذف شروط الاستخدام
+
 const deleteTermsAndConditions = async (req, res) => {
     const { id } = req.params;
     const deleteTermsAndConditionsQuery = `DELETE FROM termsandconditions WHERE id =?`;
