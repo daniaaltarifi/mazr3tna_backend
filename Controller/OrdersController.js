@@ -1,35 +1,45 @@
 const db = require('../config.js');
 
 const addOrder = async (req, res) => {
-    const { user_id, address_id, shipping_method, payment_method, total_price, order_items } = req.body;
-    const orderStatus = payment_method === 'cliq' ? 'Pending' : 'Confirmed';
-
+    const { user_id, address_id, shipping_method, payment_method, total_price, order_items, order_status } = req.body;
+    
+    
+    console.log("Received order status:", order_status);
+  
+ 
+    const calculatedOrderStatus = order_status || (payment_method === 'cliq' ? 'Pending' : 'Confirmed');
+    
+    console.log("Calculated order status:", calculatedOrderStatus);  
     const addOrderQuery = `INSERT INTO orders (user_id, address_id, shipping_method, payment_method, total_price, order_status) VALUES (?, ?, ?, ?, ?, ?)`;
     
-    db.query(addOrderQuery, [user_id, address_id, shipping_method, payment_method, total_price, orderStatus], (err, orderResult) => {
+    db.query(addOrderQuery, [user_id, address_id, shipping_method, payment_method, total_price, calculatedOrderStatus], (err, orderResult) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+  
+      const orderId = orderResult.insertId; 
+      const orderItemsQuery = `INSERT INTO order_items (order_id, product_id, quantity, size, price, weight) VALUES ?`;
+      const values = order_items.map(item => [orderId, item.product_id, item.quantity, item.size, item.price, item.weight]);
+  
+      db.query(orderItemsQuery, [values], (err) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+          return res.status(500).json({ error: err.message });
         }
-        const orderId = orderResult.insertId; // Get the newly created order ID
-        const orderItemsQuery = `INSERT INTO order_items (order_id, product_id, quantity, size, price, weight) VALUES ?`;
-        const values = order_items.map(item => [orderId, item.product_id, item.quantity, item.size, item.price, item.weight]);
-        db.query(orderItemsQuery, [values], (err) => {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            // Delete the cart items for the user
-            const delCart = `DELETE FROM cart WHERE user_id = ?`;
-            db.query(delCart, [user_id], (err) => {
-                if (err) {
-                    return res.status(500).json({ error: err.message });
-                }
-                
-                // Send success response after deleting the cart
-                res.json({ message: "Order added successfully", orderId });
-            });
+  
+        // Delete the cart items for the user
+        const delCart = `DELETE FROM cart WHERE user_id = ?`;
+        db.query(delCart, [user_id], (err) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          
+          // Send success response after deleting the cart
+          res.json({ message: "Order added successfully", orderId });
         });
+      });
     });
-};
+  };
+  
 
 
 
